@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Jferdi24\PatternsLaravel;
 
+use ReflectionException;
+use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Response;
 
 class Application
 {
+    protected array $dependencies = [];
     protected array $segments = [];
     protected string $controller;
     protected string $method;
@@ -51,10 +54,28 @@ class Application
         $controller = $this->getController();
         $method = $this->getMethod();
 
-        /** return (new $controller)->{$method}(); */
+        try {
+            $controllerReflect = new ReflectionMethod($controller, $method);
+            $parameters = $controllerReflect->getParameters();
+
+            $dependencies = [];
+            foreach ($parameters as $parameter) {
+                $dependenceClass = (string) $parameter->getType();
+                $dependencies[] = $this->dependencies[$dependenceClass];
+            }
+        } catch (ReflectionException $exception) {
+            return new Response("<pre>Ha ocurrido un error resolviendo la ruta <br>".$exception->getMessage());
+        }
+
+        /** return (new $controller)->{$method}(...$dependencies); */
         return call_user_func([
             new $controller,
             $method,
-        ]);
+        ], ...$dependencies);
+    }
+
+    public function registerDependency(string $className, object $resolve): void
+    {
+        $this->dependencies[$className] = $resolve;
     }
 }

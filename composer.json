@@ -1,0 +1,18 @@
+{
+    "name": "jferdi24/patterns-laravel",
+    "description": "Proyect to learn the patterns that use laravel, front controller, registry dependency",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Jferdi24\\PatternsLaravel\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Diego Lozano",
+            "email": "jferdi24@gmail.com"
+        }
+    ],
+    "require": {}
+}
